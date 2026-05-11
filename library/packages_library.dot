@@ -1,0 +1,36 @@
+digraph "packages_library" {
+rankdir=BT
+charset="utf-8"
+"app.models" [color="#77AADD", label=<app.models>, shape="box", style="filled"];
+"app.models.book" [color="#77AADD", label=<app.models.book>, shape="box", style="filled"];
+"app.models.loan" [color="#77AADD", label=<app.models.loan>, shape="box", style="filled"];
+"app.models.member" [color="#77AADD", label=<app.models.member>, shape="box", style="filled"];
+"app.repositories" [color="#99DDFF", label=<app.repositories>, shape="box", style="filled"];
+"app.repositories.book_repository" [color="#99DDFF", label=<app.repositories.book_repository>, shape="box", style="filled"];
+"app.repositories.loan_repository" [color="#99DDFF", label=<app.repositories.loan_repository>, shape="box", style="filled"];
+"app.repositories.member_repository" [color="#99DDFF", label=<app.repositories.member_repository>, shape="box", style="filled"];
+"app.services" [color="#44BB99", label=<app.services>, shape="box", style="filled"];
+"app.services.book_service" [color="#44BB99", label=<app.services.book_service>, shape="box", style="filled"];
+"app.services.loan_service" [color="#44BB99", label=<app.services.loan_service>, shape="box", style="filled"];
+"app.services.member_service" [color="#44BB99", label=<app.services.member_service>, shape="box", style="filled"];
+"app.models" -> "app.models.book" [arrowhead="open", arrowtail="none"];
+"app.models" -> "app.models.loan" [arrowhead="open", arrowtail="none"];
+"app.models" -> "app.models.member" [arrowhead="open", arrowtail="none"];
+"app.repositories" -> "app.repositories.book_repository" [arrowhead="open", arrowtail="none"];
+"app.repositories" -> "app.repositories.loan_repository" [arrowhead="open", arrowtail="none"];
+"app.repositories" -> "app.repositories.member_repository" [arrowhead="open", arrowtail="none"];
+"app.repositories.book_repository" -> "app.models.book" [arrowhead="open", arrowtail="none"];
+"app.repositories.loan_repository" -> "app.models.loan" [arrowhead="open", arrowtail="none"];
+"app.repositories.member_repository" -> "app.models.member" [arrowhead="open", arrowtail="none"];
+"app.services" -> "app.services.book_service" [arrowhead="open", arrowtail="none"];
+"app.services" -> "app.services.loan_service" [arrowhead="open", arrowtail="none"];
+"app.services" -> "app.services.member_service" [arrowhead="open", arrowtail="none"];
+"app.services.book_service" -> "app.models.book" [arrowhead="open", arrowtail="none"];
+"app.services.book_service" -> "app.repositories.book_repository" [arrowhead="open", arrowtail="none"];
+"app.services.loan_service" -> "app.models.loan" [arrowhead="open", arrowtail="none"];
+"app.services.loan_service" -> "app.repositories.book_repository" [arrowhead="open", arrowtail="none"];
+"app.services.loan_service" -> "app.repositories.loan_repository" [arrowhead="open", arrowtail="none"];
+"app.services.loan_service" -> "app.repositories.member_repository" [arrowhead="open", arrowtail="none"];
+"app.services.member_service" -> "app.models.member" [arrowhead="open", arrowtail="none"];
+"app.services.member_service" -> "app.repositories.member_repository" [arrowhead="open", arrowtail="none"];
+}
