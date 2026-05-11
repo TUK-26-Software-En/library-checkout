@@ -66,127 +66,94 @@ def run_package_diagram():
     pyreverse 는 개별 모듈까지 모두 노출해 엣지가 교차하므로,
     graphviz DOT 로 직접 기술한다.
 
-    레이어 구성 (TB, rank 고정):
-      main ─ database
-      ├─ Presentation  : routers
-      ├─ Business      : services
-      └─ Data          : repositories + models
+    레이어 구성 (TB):
+      main (rank=min)
+      Presentation : routers
+      Business     : services
+      Data         : repositories / models
+      database.py  (rank=max)
     """
     dot_src = r"""
 digraph PackageDiagram {
-    graph [rankdir=TB, fontname="Helvetica", fontsize=12,
-           nodesep=0.6, ranksep=0.9, splines=ortho, pad=0.5]
+    graph [rankdir=TB, newrank=true, fontname="Helvetica",
+           nodesep=0.55, ranksep=0.85, pad=0.5]
     node  [fontname="Helvetica", fontsize=11, style="filled,rounded",
-           shape=box, width=1.6, height=0.45]
-    edge  [fontname="Helvetica", fontsize=9, color="#444444"]
+           shape=box, width=1.65, height=0.42]
+    edge  [fontname="Helvetica", fontsize=9]
 
-    /* ── 공통 노드 ────────────────────────────────── */
     main     [label="main.py",     fillcolor="#D5D8DC"]
-    database [label="database.py", fillcolor="#D5D8DC", shape=cylinder,
-              height=0.6]
+    database [label="database.py", fillcolor="#BFC9CA", shape=cylinder, height=0.6]
 
-    /* ── Presentation Layer ──────────────────────── */
     subgraph cluster_routers {
-        label="app.routers  [ Presentation Layer ]"
-        style="filled,rounded"
-        fillcolor="#D6EAF8"
-        color="#2980B9"
-        fontcolor="#1A5276"
-        fontsize=12
-
+        label="app.routers  ·  Presentation Layer"
+        style=filled; fillcolor="#D6EAF8"; color="#2471A3"; penwidth=2
+        fontcolor="#1A5276"; fontname="Helvetica Bold"; fontsize=11
         book_router   [label="book_router",   fillcolor="#AED6F1"]
         member_router [label="member_router", fillcolor="#AED6F1"]
         loan_router   [label="loan_router",   fillcolor="#AED6F1"]
     }
 
-    /* ── Business Layer ──────────────────────────── */
     subgraph cluster_services {
-        label="app.services  [ Business Layer ]"
-        style="filled,rounded"
-        fillcolor="#D5F5E3"
-        color="#1E8449"
-        fontcolor="#1D6A3F"
-        fontsize=12
-
+        label="app.services  ·  Business Layer"
+        style=filled; fillcolor="#D5F5E3"; color="#1E8449"; penwidth=2
+        fontcolor="#1D6A3F"; fontname="Helvetica Bold"; fontsize=11
         book_service   [label="book_service",   fillcolor="#A9DFBF"]
         member_service [label="member_service", fillcolor="#A9DFBF"]
         loan_service   [label="loan_service",   fillcolor="#A9DFBF"]
     }
 
-    /* ── Data Layer : Repositories ───────────────── */
     subgraph cluster_repos {
-        label="app.repositories  [ Data Layer ]"
-        style="filled,rounded"
-        fillcolor="#FDEBD0"
-        color="#CA6F1E"
-        fontcolor="#784212"
-        fontsize=12
-
+        label="app.repositories  ·  Data Layer"
+        style=filled; fillcolor="#FDEBD0"; color="#CA6F1E"; penwidth=2
+        fontcolor="#784212"; fontname="Helvetica Bold"; fontsize=11
         book_repo   [label="book_repository",   fillcolor="#FAD7A0"]
         member_repo [label="member_repository", fillcolor="#FAD7A0"]
         loan_repo   [label="loan_repository",   fillcolor="#FAD7A0"]
     }
 
-    /* ── Data Layer : Models ─────────────────────── */
     subgraph cluster_models {
-        label="app.models  [ Data Layer ]"
-        style="filled,rounded"
-        fillcolor="#F9EBEA"
-        color="#B03A2E"
-        fontcolor="#7B241C"
-        fontsize=12
-
+        label="app.models  ·  Data Layer"
+        style=filled; fillcolor="#FDEDEC"; color="#B03A2E"; penwidth=2
+        fontcolor="#7B241C"; fontname="Helvetica Bold"; fontsize=11
         book_model   [label="book.py",   fillcolor="#F1948A"]
         member_model [label="member.py", fillcolor="#F1948A"]
         loan_model   [label="loan.py",   fillcolor="#F1948A"]
     }
 
-    /* ── rank 고정 ───────────────────────────────── */
-    { rank=same; main; database }
+    { rank=min;  main }
     { rank=same; book_router; member_router; loan_router }
     { rank=same; book_service; member_service; loan_service }
     { rank=same; book_repo; member_repo; loan_repo }
     { rank=same; book_model; member_model; loan_model }
+    { rank=max;  database }
 
-    /* ── main ──────────────────────────────────────── */
-    main -> database       [style=dashed, arrowhead=open]
-    main -> book_router    [style=dashed, arrowhead=open]
-    main -> member_router  [style=dashed, arrowhead=open]
-    main -> loan_router    [style=dashed, arrowhead=open]
+    main -> book_router    [style=dashed, color="#888888", arrowhead=open]
+    main -> member_router  [style=dashed, color="#888888", arrowhead=open]
+    main -> loan_router    [style=dashed, color="#888888", arrowhead=open]
 
-    /* ── routers → services ──────────────────────── */
-    book_router   -> book_service                        [weight=5]
-    member_router -> member_service                      [weight=5]
-    loan_router   -> book_service                        [weight=3]
-    loan_router   -> member_service                      [weight=3]
-    loan_router   -> loan_service                        [weight=5]
+    book_router   -> book_service   [color="#2471A3", penwidth=1.5]
+    member_router -> member_service [color="#2471A3", penwidth=1.5]
+    loan_router   -> loan_service   [color="#2471A3", penwidth=1.5]
+    loan_router   -> book_service   [color="#888888", style=dashed]
+    loan_router   -> member_service [color="#888888", style=dashed]
 
-    /* ── routers → database (get_db) ─────────────── */
-    book_router   -> database [style=dashed, arrowhead=open, color="#AAAAAA"]
-    member_router -> database [style=dashed, arrowhead=open, color="#AAAAAA"]
-    loan_router   -> database [style=dashed, arrowhead=open, color="#AAAAAA"]
+    book_service   -> book_repo   [color="#1E8449", penwidth=1.5]
+    member_service -> member_repo [color="#1E8449", penwidth=1.5]
+    loan_service   -> loan_repo   [color="#1E8449", penwidth=1.5]
+    loan_service   -> book_repo   [color="#888888", style=dashed]
+    loan_service   -> member_repo [color="#888888", style=dashed]
 
-    /* ── services → repositories ─────────────────── */
-    book_service   -> book_repo                          [weight=5]
-    member_service -> member_repo                        [weight=5]
-    loan_service   -> book_repo                          [weight=3]
-    loan_service   -> member_repo                        [weight=3]
-    loan_service   -> loan_repo                          [weight=5]
+    book_service   -> book_model   [color="#AAAAAA", style=dashed, arrowhead=open]
+    member_service -> member_model [color="#AAAAAA", style=dashed, arrowhead=open]
+    loan_service   -> loan_model   [color="#AAAAAA", style=dashed, arrowhead=open]
 
-    /* ── services → models ───────────────────────── */
-    book_service   -> book_model   [style=dashed, arrowhead=open]
-    member_service -> member_model [style=dashed, arrowhead=open]
-    loan_service   -> loan_model   [style=dashed, arrowhead=open]
+    book_repo   -> book_model   [color="#CA6F1E", penwidth=1.5]
+    member_repo -> member_model [color="#CA6F1E", penwidth=1.5]
+    loan_repo   -> loan_model   [color="#CA6F1E", penwidth=1.5]
 
-    /* ── repositories → models ───────────────────── */
-    book_repo   -> book_model                            [weight=5]
-    member_repo -> member_model                          [weight=5]
-    loan_repo   -> loan_model                            [weight=5]
-
-    /* ── models → database ───────────────────────── */
-    book_model   -> database                             [weight=5]
-    member_model -> database                             [weight=5]
-    loan_model   -> database                             [weight=5]
+    book_model   -> database [color="#B03A2E", penwidth=1.5]
+    member_model -> database [color="#B03A2E", penwidth=1.5]
+    loan_model   -> database [color="#B03A2E", penwidth=1.5]
 }
 """
     src = graphviz.Source(dot_src)
